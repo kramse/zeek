@@ -54,6 +54,8 @@ struct ConnIDKey {
 
 		return *this;
 		}
+
+	std::unique_ptr<HashKey> GetHashKey() const;
 };
 
 /**
