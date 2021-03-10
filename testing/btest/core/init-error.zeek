@@ -4,7 +4,7 @@
 # @TEST-EXEC: TEST_DIFF_CANONIFIER=$SCRIPTS/diff-remove-abspath btest-diff out
 # @TEST-EXEC: TEST_DIFF_CANONIFIER=$SCRIPTS/diff-remove-abspath btest-diff err
 
-event zeek_init() &priority=10
+event zeek_init() &priority=15
 	{
 	print "1st event";
 	}
