@@ -88,7 +88,7 @@ function get_conn_stats%(%): ConnStats
 
 	r->Assign(n++, Connection::TotalConnections());
 	r->Assign(n++, Connection::CurrentConnections());
-	r->Assign(n++, sessions->CurrentConnections());
+	r->Assign(n++, sessions->CurrentSessions());
 
 	SessionStats s;
 	if ( sessions )
