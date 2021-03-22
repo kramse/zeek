@@ -8,7 +8,7 @@
 
 namespace zeek::packet_analysis::UDP {
 
-class UDPAnalyzer : public zeek::packet_analysis::IP::IPBasedAnalyzer {
+class UDPAnalyzer : public IP::IPBasedAnalyzer {
 public:
 	UDPAnalyzer();
 	~UDPAnalyzer() override;
@@ -19,6 +19,9 @@ public:
 		{
 		return std::make_shared<UDPAnalyzer>();
 		}
+
+	void CreateTransportAnalyzer(Connection* conn, IP::IPBasedTransportAnalyzer*& root,
+	                             analyzer::pia::PIA*& pia, bool& check_port) override;
 
 protected:
 

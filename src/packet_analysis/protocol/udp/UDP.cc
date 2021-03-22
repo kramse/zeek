@@ -6,9 +6,9 @@
 #include "zeek/Conn.h"
 
 using namespace zeek::packet_analysis::UDP;
+using namespace zeek::packet_analysis::IP;
 
-UDPAnalyzer::UDPAnalyzer()
-	: zeek::packet_analysis::IP::IPBasedAnalyzer("UDP_PKT")
+UDPAnalyzer::UDPAnalyzer() : IPBasedAnalyzer("UDP_PKT")
 	{
 	}
 
@@ -41,4 +41,9 @@ bool UDPAnalyzer::WantConnection(uint16_t src_port, uint16_t dst_port,
 	{
 	flip_roles = IsLikelyServerPort(src_port) && ! IsLikelyServerPort(dst_port);
 	return true;
+	}
+
+void UDPAnalyzer::CreateTransportAnalyzer(Connection* conn, IPBasedTransportAnalyzer*& root,
+                                          analyzer::pia::PIA*& pia, bool& check_port)
+	{
 	}

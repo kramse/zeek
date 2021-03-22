@@ -20,6 +20,92 @@ IPBasedAnalyzer::~IPBasedAnalyzer()
 	{
 	}
 
+void IPBasedAnalyzer::ProcessConnectionICMP(const ConnID& conn_id, const Packet* pkt, size_t remaining)
+	{
+	icmp = true;
+	const std::unique_ptr<IP_Hdr>& ip_hdr = pkt->ip_hdr;
+	detail::ConnIDKey key = detail::BuildConnIDKey(conn_id);
+
+	Connection* conn = session_mgr->FindConnection(key, GetTransportProto());
+
+	if ( ! conn )
+		{
+		conn = NewConn(&conn_id, key, pkt);
+		if ( conn )
+			Insert(conn);
+		}
+	else
+		{
+		if ( conn->IsReuse(run_state::processing_start_time, ip_hdr->Payload()) )
+			{
+			conn->Event(connection_reused, nullptr);
+
+			// TODO: why do we do this Insert/Recreate/Remove dance here? Why can't the
+			// existing connection object just be "refreshed" in some way?
+			Remove(conn);
+			conn = NewConn(&conn_id, key, pkt);
+			if ( conn )
+				Insert(conn);
+			}
+		else
+			{
+			conn->CheckEncapsulation(pkt->encap);
+			}
+		}
+
+	if ( ! conn )
+		return;
+
+	bool is_orig = (conn_id.src_addr == conn->OrigAddr()) &&
+		(conn_id.src_port == conn->OrigPort());
+
+	conn->CheckFlowLabel(is_orig, ip_hdr->FlowLabel());
+
+	zeek::ValPtr pkt_hdr_val;
+
+	if ( ipv6_ext_headers && ip_hdr->NumHeaders() > 1 )
+		{
+		pkt_hdr_val = ip_hdr->ToPktHdrVal();
+		conn->EnqueueEvent(ipv6_ext_headers, nullptr, conn->GetVal(),
+		                   pkt_hdr_val);
+		}
+
+	if ( new_packet )
+		conn->EnqueueEvent(new_packet, nullptr, conn->GetVal(),
+		                   pkt_hdr_val ? std::move(pkt_hdr_val) : ip_hdr->ToPktHdrVal());
+
+	conn->SetRecordPackets(true);
+	conn->SetRecordContents(true);
+
+	const u_char* data = pkt->ip_hdr->Payload();
+
+	run_state::current_timestamp = run_state::processing_start_time;
+	run_state::current_pkt = pkt;
+
+	// TODO: Does this actually mean anything?
+	if ( conn->Skipping() )
+		return;
+
+	ContinueProcessing(conn, run_state::processing_start_time, is_orig, remaining, pkt);
+
+	run_state::current_timestamp = 0;
+	run_state::current_pkt = nullptr;
+
+	// If the packet is reassembled, disable packet dumping because the
+	// pointer math to dump the data wouldn't work.
+	if ( pkt->ip_hdr->reassembled )
+		pkt->dump_packet = false;
+	else if ( conn->RecordPackets() )
+		{
+		pkt->dump_packet = true;
+
+		// If we don't want the content, set the dump size to include just
+		// the header.
+		if ( ! conn->RecordContents() )
+			pkt->dump_size = data - pkt->data;
+		}
+	}
+
 void IPBasedAnalyzer::ProcessConnection(const ConnID& conn_id, const Packet* pkt, size_t remaining)
 	{
 	const std::unique_ptr<IP_Hdr>& ip_hdr = pkt->ip_hdr;
@@ -60,14 +146,18 @@ void IPBasedAnalyzer::ProcessConnection(const ConnID& conn_id, const Packet* pkt
 
 	conn->CheckFlowLabel(is_orig, ip_hdr->FlowLabel());
 
-	zeek::ValPtr pkt_hdr_val = ip_hdr->ToPktHdrVal();
+	zeek::ValPtr pkt_hdr_val;
 
 	if ( ipv6_ext_headers && ip_hdr->NumHeaders() > 1 )
+		{
+		pkt_hdr_val = ip_hdr->ToPktHdrVal();
 		conn->EnqueueEvent(ipv6_ext_headers, nullptr, conn->GetVal(),
 		                   pkt_hdr_val);
+		}
 
 	if ( new_packet )
-		conn->EnqueueEvent(new_packet, nullptr, conn->GetVal(), std::move(pkt_hdr_val));
+		conn->EnqueueEvent(new_packet, nullptr, conn->GetVal(),
+		                   pkt_hdr_val ? std::move(pkt_hdr_val) : ip_hdr->ToPktHdrVal());
 
 	int record_packet = 1;	// whether to record the packet at all
 	int record_content = 1;	// whether to record its data
@@ -129,7 +219,8 @@ bool IPBasedAnalyzer::IsLikelyServerPort(uint32_t port) const
 	return port_cache.find(port) != port_cache.end();
 	}
 
-zeek::Connection* IPBasedAnalyzer::NewConn(const ConnID* id, const detail::ConnIDKey& key, const Packet* pkt)
+zeek::Connection* IPBasedAnalyzer::NewConn(const ConnID* id, const detail::ConnIDKey& key,
+                                           const Packet* pkt)
 	{
 	int src_h = ntohs(id->src_port);
 	int dst_h = ntohs(id->dst_port);
@@ -145,7 +236,16 @@ zeek::Connection* IPBasedAnalyzer::NewConn(const ConnID* id, const detail::ConnI
 	if ( flip )
 		conn->FlipRoles();
 
-	if ( ! analyzer_mgr->BuildInitialAnalyzerTree(conn) )
+	if ( ! icmp )
+		{
+		if ( ! analyzer_mgr->BuildInitialAnalyzerTree(conn) )
+			{
+			conn->Done();
+			Unref(conn);
+			return nullptr;
+			}
+		}
+	else if ( ! analyzer_mgr->BuildSessionAnalyzerTree(conn, this) )
 		{
 		conn->Done();
 		Unref(conn);

@@ -2,6 +2,7 @@
 
 #include "zeek/plugin/Plugin.h"
 #include "zeek/packet_analysis/Component.h"
+#include "zeek/analyzer/Component.h"
 #include "zeek/packet_analysis/protocol/icmp/ICMP.h"
 
 namespace zeek::plugin::Zeek_ICMP {
@@ -12,6 +13,8 @@ public:
 		{
 		AddComponent(new zeek::packet_analysis::Component("ICMP_PKT",
 		                 zeek::packet_analysis::ICMP::ICMPAnalyzer::Instantiate));
+		AddComponent(new zeek::analyzer::Component("ICMPTransport",
+		                 zeek::packet_analysis::ICMP::ICMPTransportAnalyzer::Instantiate));
 
 		zeek::plugin::Configuration config;
 		config.name = "Zeek::ICMP_PKT";

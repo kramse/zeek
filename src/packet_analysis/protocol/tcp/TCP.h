@@ -8,7 +8,7 @@
 
 namespace zeek::packet_analysis::TCP {
 
-class TCPAnalyzer : public zeek::packet_analysis::IP::IPBasedAnalyzer {
+class TCPAnalyzer : public IP::IPBasedAnalyzer {
 public:
 	TCPAnalyzer();
 	~TCPAnalyzer() override;
@@ -19,6 +19,9 @@ public:
 		{
 		return std::make_shared<TCPAnalyzer>();
 		}
+
+	void CreateTransportAnalyzer(Connection* conn, IP::IPBasedTransportAnalyzer*& root,
+	                             analyzer::pia::PIA*& pia, bool& check_port) override;
 
 protected:
 

@@ -35,6 +35,9 @@
 #include "zeek/analyzer/analyzer.bif.h"
 
 namespace zeek {
+
+namespace packet_analysis::IP { class IPBasedAnalyzer; }
+
 namespace analyzer {
 
 /**
@@ -248,6 +251,7 @@ public:
 	 * internally error.
 	 */
 	bool BuildInitialAnalyzerTree(Connection* conn);
+	bool BuildSessionAnalyzerTree(Connection* conn, packet_analysis::IP::IPBasedAnalyzer* analyzer);
 
 	/**
 	 * Schedules a particular analyzer for an upcoming connection. Once

@@ -459,7 +459,7 @@ void ICMP_Analyzer::UpdateConnVal(RecordVal *conn_val)
 	UpdateEndpointVal(orig_endp, true);
 	UpdateEndpointVal(resp_endp, false);
 
-	// Call children's UpdateConnVal
+	// Call UpdateConnVal() for all of the child analyzers
 	Analyzer::UpdateConnVal(conn_val);
 	}
 

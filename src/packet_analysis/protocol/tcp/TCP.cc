@@ -6,9 +6,9 @@
 #include "zeek/Conn.h"
 
 using namespace zeek::packet_analysis::TCP;
+using namespace zeek::packet_analysis::IP;
 
-TCPAnalyzer::TCPAnalyzer()
-	: zeek::packet_analysis::IP::IPBasedAnalyzer("TCP_PKT")
+TCPAnalyzer::TCPAnalyzer() : IPBasedAnalyzer("TCP_PKT")
 	{
 	}
 
@@ -77,4 +77,10 @@ bool TCPAnalyzer::WantConnection(uint16_t src_port, uint16_t dst_port,
 		}
 
 	return true;
+	}
+
+
+void TCPAnalyzer::CreateTransportAnalyzer(Connection* conn, IPBasedTransportAnalyzer*& root,
+                                          analyzer::pia::PIA*& pia, bool& check_port)
+	{
 	}
