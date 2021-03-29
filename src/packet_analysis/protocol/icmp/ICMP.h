@@ -108,7 +108,7 @@ class ICMPTransportAnalyzer : public IP::IPBasedTransportAnalyzer {
 public:
 
 	ICMPTransportAnalyzer(Connection* conn) :
-		IP::IPBasedTransportAnalyzer("ICMPTransport", conn) { }
+		IP::IPBasedTransportAnalyzer("ICMP", conn) { }
 
 	static zeek::analyzer::Analyzer* Instantiate(Connection* conn)
 		{

@@ -9,14 +9,13 @@
 #include "zeek/Reporter.h"
 #include "zeek/Desc.h"
 #include "zeek/Val.h"
-#include "zeek/analyzer/protocol/icmp/ICMP.h"
 #include "zeek/analyzer/Manager.h"
 #include "zeek/session/SessionManager.h"
 #include "zeek/analyzer/protocol/conn-size/ConnSize.h"
 
 #include "zeek/ZeekString.h"
 
-#include "zeek/analyzer/protocol/icmp/events.bif.h"
+#include "zeek/packet_analysis/protocol/icmp/events.bif.h"
 
 enum ICMP_EndpointState {
 	ICMP_INACTIVE,	// no packet seen
@@ -26,7 +25,7 @@ enum ICMP_EndpointState {
 using namespace zeek::packet_analysis::ICMP;
 using namespace zeek::packet_analysis::IP;
 
-ICMPAnalyzer::ICMPAnalyzer() : IPBasedAnalyzer("ICMP_PKT")
+ICMPAnalyzer::ICMPAnalyzer() : IPBasedAnalyzer("ICMP")
 	{
 	}
 
