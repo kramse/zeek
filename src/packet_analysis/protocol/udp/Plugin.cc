@@ -12,6 +12,8 @@ public:
 		{
 		AddComponent(new zeek::packet_analysis::Component("UDP_PKT",
 		                 zeek::packet_analysis::UDP::UDPAnalyzer::Instantiate));
+		AddComponent(new zeek::analyzer::Component("UDPTransport",
+		                 zeek::packet_analysis::UDP::UDPTransportAnalyzer::Instantiate));
 
 		zeek::plugin::Configuration config;
 		config.name = "Zeek::UDP_PKT";

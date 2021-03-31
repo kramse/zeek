@@ -15,6 +15,16 @@
 
 namespace zeek::analyzer::udp {
 
+constexpr uint32_t HIST_ORIG_DATA_PKT = 0x1;
+constexpr uint32_t HIST_RESP_DATA_PKT = 0x2;
+constexpr uint32_t HIST_ORIG_CORRUPT_PKT = 0x4;
+constexpr uint32_t HIST_RESP_CORRUPT_PKT = 0x8;
+
+enum UDP_EndpointState {
+	UDP_INACTIVE,	// no packet seen
+	UDP_ACTIVE,	// packets seen
+};
+
 UDP_Analyzer::UDP_Analyzer(Connection* conn)
 	: analyzer::TransportLayerAnalyzer("UDP", conn)
 	{
@@ -28,17 +38,6 @@ UDP_Analyzer::UDP_Analyzer(Connection* conn)
 
 UDP_Analyzer::~UDP_Analyzer()
 	{
-	// XXX: need to implement this!
-	// delete src_pkt_writer;
-	}
-
-void UDP_Analyzer::Init()
-	{
-	}
-
-void UDP_Analyzer::Done()
-	{
-	Analyzer::Done();
 	}
 
 void UDP_Analyzer::DeliverPacket(int len, const u_char* data, bool is_orig,
