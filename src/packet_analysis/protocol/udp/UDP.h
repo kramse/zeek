@@ -58,7 +58,7 @@ protected:
 	                    const u_char* data, bool& flip_roles) const override;
 
 	void ContinueProcessing(Connection* c, double t, bool is_orig, int remaining,
-	                        const Packet* pkt) override;
+	                        Packet* pkt) override;
 
 private:
 

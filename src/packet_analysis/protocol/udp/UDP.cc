@@ -25,6 +25,7 @@ enum UDP_EndpointState {
 
 UDPAnalyzer::UDPAnalyzer() : IPBasedAnalyzer("UDP_PKT")
 	{
+	report_unknown_protocols = false;
 	}
 
 UDPAnalyzer::~UDPAnalyzer()
@@ -87,7 +88,7 @@ bool UDPAnalyzer::WantConnection(uint16_t src_port, uint16_t dst_port,
 	return true;
 	}
 
-void UDPAnalyzer::ContinueProcessing(Connection* c, double t, bool is_orig, int remaining, const Packet* pkt)
+void UDPAnalyzer::ContinueProcessing(Connection* c, double t, bool is_orig, int remaining, Packet* pkt)
 	{
 	req_chk_cnt = rep_chk_cnt = 0;
 	req_chk_thresh = rep_chk_thresh = 1;

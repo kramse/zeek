@@ -27,6 +27,7 @@ using namespace zeek::packet_analysis::IP;
 
 ICMPAnalyzer::ICMPAnalyzer() : IPBasedAnalyzer("ICMP")
 	{
+	report_unknown_protocols = false;
 	}
 
 ICMPAnalyzer::~ICMPAnalyzer()
@@ -59,14 +60,13 @@ bool ICMPAnalyzer::AnalyzePacket(size_t len, const uint8_t* data, Packet* packet
 	return true;
 	}
 
-void ICMPAnalyzer::ContinueProcessing(Connection* c, double t, bool is_orig, int remaining, const Packet* pkt)
+void ICMPAnalyzer::ContinueProcessing(Connection* c, double t, bool is_orig, int remaining, Packet* pkt)
 	{
 	conn = c;
 	session_analyzer = static_cast<IPBasedTransportAnalyzer*>(conn->GetRootAnalyzer());
 	auto* ta = static_cast<ICMPTransportAnalyzer*>(session_analyzer);
 
 	const u_char* data = pkt->ip_hdr->Payload();
-
 	int len = pkt->ip_hdr->PayloadLen();
 
 	if ( packet_contents && len > 0 )
@@ -126,6 +126,8 @@ void ICMPAnalyzer::ContinueProcessing(Connection* c, double t, bool is_orig, int
 		reporter->Error("expected ICMP as IP packet's protocol, got %d", ip->NextProto());
 		return;
 		}
+
+	ForwardPacket(len, data, pkt);
 
 	if ( remaining >= len )
 		session_analyzer->ForwardPacket(len, data, is_orig, -1, ip.get(), remaining);

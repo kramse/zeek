@@ -160,6 +160,11 @@ protected:
 	 */
 	void Weird(const char* name, Packet* packet=nullptr, const char* addl="") const;
 
+	/**
+	 * Flag for whether to report unknown protocols in ForwardPacket.
+	 */
+	bool report_unknown_protocols = true;
+
 private:
 	Tag tag;
 	Dispatcher dispatcher;

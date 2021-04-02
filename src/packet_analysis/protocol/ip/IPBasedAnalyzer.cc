@@ -20,7 +20,7 @@ IPBasedAnalyzer::~IPBasedAnalyzer()
 	{
 	}
 
-void IPBasedAnalyzer::ProcessConnectionICMP(const ConnID& conn_id, const Packet* pkt, size_t remaining)
+void IPBasedAnalyzer::ProcessConnectionICMP(const ConnID& conn_id, Packet* pkt, size_t remaining)
 	{
 	icmp = true;
 	const std::unique_ptr<IP_Hdr>& ip_hdr = pkt->ip_hdr;
@@ -106,7 +106,7 @@ void IPBasedAnalyzer::ProcessConnectionICMP(const ConnID& conn_id, const Packet*
 		}
 	}
 
-void IPBasedAnalyzer::ProcessConnection(const ConnID& conn_id, const Packet* pkt, size_t remaining)
+void IPBasedAnalyzer::ProcessConnection(const ConnID& conn_id, Packet* pkt, size_t remaining)
 	{
 	const std::unique_ptr<IP_Hdr>& ip_hdr = pkt->ip_hdr;
 	detail::ConnIDKey key = detail::BuildConnIDKey(conn_id);

@@ -49,7 +49,7 @@ protected:
 	 * @param pkt The packet being processed.
 	 * @param remaining The number of bytes remaining to be processed in the packet.
 	 */
-	void ProcessConnectionICMP(const ConnID& conn_id, const Packet* pkt, size_t remaining);
+	void ProcessConnectionICMP(const ConnID& conn_id, Packet* pkt, size_t remaining);
 
 	/**
 	 * Entry point for child classes to call to do the actual heavy lifting for
@@ -59,7 +59,7 @@ protected:
 	 * @param pkt The packet being processed.
 	 * @param remaining The number of bytes remaining to be processed in the packet.
 	 */
-	void ProcessConnection(const ConnID& conn_id, const Packet* pkt, size_t remaining);
+	void ProcessConnection(const ConnID& conn_id, Packet* pkt, size_t remaining);
 
 	/**
 	 * Verifies that there is enough data in the packet to process the header
@@ -111,8 +111,19 @@ protected:
 	 */
 	bool IsLikelyServerPort(uint32_t port) const;
 
+	/**
+	 * Continues process of packet after the connection has been inserted into the
+	 * session manager. This should be implemented by all child classes.
+	 *
+	 * @param conn The connection currently being processed.
+	 * @param t The timestamp for the current packet.
+	 * @param is_orig Flag denoting whether this packet is from the originator of
+	 * the connection.
+	 * @param remaining The remaining about of data in the packet.
+	 * @param pkt The packet being processed.
+	 */
 	virtual void ContinueProcessing(Connection* conn, double t, bool is_orig, int remaining,
-	                                const Packet* pkt) {}
+	                                Packet* pkt) {}
 
 	/**
 	 * The entry point to the session analysis framework. This should be reset between calls
@@ -121,7 +132,7 @@ protected:
 	 */
 	IPBasedTransportAnalyzer* session_analyzer;
 
-	// TODO: temporary
+	// TODO: temporary, until TCP is implemented.
 	bool icmp = false;
 
 private:

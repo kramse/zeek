@@ -45,7 +45,7 @@ protected:
 	TransportProto GetTransportProto() const override { return TRANSPORT_ICMP; }
 
 	void ContinueProcessing(Connection* c, double t, bool is_orig, int remaining,
-	                        const Packet* pkt) override;
+	                        Packet* pkt) override;
 
 private:
 
