@@ -28,10 +28,9 @@ uint64_t Connection::current_connections = 0;
 Connection::Connection(SessionManager* s, const detail::ConnIDKey& k, double t,
                        const ConnID* id, uint32_t flow, const Packet* pkt)
 	: Session(t, connection_timeout, connection_status_update,
-	          detail::connection_status_update_interval)
+	          detail::connection_status_update_interval),
+	  sessions(s), key(k)
 	{
-	sessions = s;
-	key = k;
 	key_valid = true;
 
 	orig_addr = id->src_addr;
